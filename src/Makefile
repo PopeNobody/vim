@@ -318,7 +318,7 @@ CClink = $(CC)
 # Uncomment this line when you don't want to get the GUI version, although you
 # have GTK and/or Motif.  Also use --without-x if you don't want X11
 # at all.
-#CONF_OPT_GUI = --disable-gui
+CONF_OPT_GUI = --disable-gui
 
 # Uncomment one of these lines if you have that GUI but don't want to use it.
 # The automatic check will use another one that can be found.
@@ -326,10 +326,10 @@ CClink = $(CC)
 #
 # When both GTK+ 2 and GTK+ 3 are possible then GTK+ 2 will be selected.
 # To use GTK+ 3 instead use --enable-gui=gtk3 (see below).
-#CONF_OPT_GUI = --disable-gtk2-check
-#CONF_OPT_GUI = --enable-gnome-check
-#CONF_OPT_GUI = --disable-gtk3-check
-#CONF_OPT_GUI = --disable-motif-check
+#CONF_OPT_GUI += --disable-gtk2-check
+#CONF_OPT_GUI += --disable-gnome-check
+#CONF_OPT_GUI += --disable-gtk3-check
+#CONF_OPT_GUI += --disable-motif-check
 
 # Uncomment one of these lines to select a specific GUI to use.
 # When using "yes" or nothing, configure will use the first one found: GTK+,
@@ -418,7 +418,7 @@ CClink = $(CC)
 # When you get an error for a missing "perl.exp" file, try creating an empty
 # one: "touch perl.exp".
 # This requires at least "normal" features, "tiny" doesn't work.
-#CONF_OPT_PERL = --enable-perlinterp
+CONF_OPT_PERL = --enable-perlinterp
 #CONF_OPT_PERL = --enable-perlinterp=dynamic
 
 # PYTHON
@@ -462,7 +462,7 @@ CClink = $(CC)
 
 # CSCOPE
 # Uncomment this when you want to include the Cscope interface.
-#CONF_OPT_CSCOPE = --enable-cscope
+CONF_OPT_CSCOPE = --enable-cscope
 
 # NETBEANS - NetBeans interface. Only works with Motif, GTK, and gnome.
 # Motif version must have XPM libraries (see |netbeans-xpm|).
@@ -478,7 +478,7 @@ CClink = $(CC)
 # Uncomment the first line when you want terminal emulator support for
 # not-huge builds.  Uncomment the second line when you don't want terminal
 # emulator support in the huge build.
-#CONF_OPT_TERMINAL = --enable-terminal
+CONF_OPT_TERMINAL = --enable-terminal
 #CONF_OPT_TERMINAL = --disable-terminal
 
 # MULTIBYTE - To edit multi-byte characters.
@@ -534,17 +534,17 @@ CClink = $(CC)
 # The default is "huge" for most systems.
 #CONF_OPT_FEAT = --with-features=tiny
 #CONF_OPT_FEAT = --with-features=normal
-#CONF_OPT_FEAT = --with-features=huge
+CONF_OPT_FEAT = --with-features=huge
 
 # COMPILED BY - For including a specific e-mail address for ":version".
-#CONF_OPT_COMPBY = "--with-compiledby=John Doe <JohnDoe@yahoo.com>"
+CONF_OPT_COMPBY = "--with-compiledby=Nobody Nobody@ElectNobody.com"
 
 # X WINDOWS DISABLE - For creating a plain Vim without any X11 related fancies
 # (otherwise Vim configure will try to include xterm titlebar access)
 # Also disable the GUI above, otherwise it will be included anyway.
 # When both GUI and X11 have been disabled this may save about 15% of the
 # code and make Vim startup quicker.
-#CONF_OPT_X = --without-x
+CONF_OPT_X = --without-x
 
 # X WINDOWS DIRECTORY - specify X directories
 # If configure can't find you X stuff, or if you have multiple X11 derivatives
@@ -569,7 +569,7 @@ CClink = $(CC)
 #CONF_OPT_XSMP = --disable-xsmp-interact
 
 # If you want to always automatically add a servername, also in the terminal.
-#CONF_OPT_AUTOSERVE = --enable-autoservername
+CONF_OPT_AUTOSERVE = --enable-autoservername
 
 # COMPILER - Name of the compiler {{{1
 # The default from configure will mostly be fine, no need to change this, just
@@ -604,7 +604,7 @@ CClink = $(CC)
 #CFLAGS = -O6 -fno-strength-reduce -Wall -Wshadow -Wmissing-prototypes
 #CFLAGS = -g -DDEBUG -Wall -Wshadow -Wmissing-prototypes
 #CFLAGS = -g -O2 '-DSTARTUPTIME="vimstartup"' -fno-strength-reduce -Wall -Wmissing-prototypes
-
+CFLAGS=-g -ggdb3 -DDEBUG 
 # Use this with GCC to check for mistakes, unused arguments, etc.
 # Note: If you use -Wextra and get warnings in GTK code about function
 #       parameters, you can add -Wno-cast-function-type (but not with clang)
@@ -637,7 +637,7 @@ AUTOCONF ?= autoconf
 # VALGRIND = valgrind --tool=memcheck --leak-check=yes --num-callers=25 --log-file=valgrind.$@
 
 # NBDEBUG - debugging the netbeans interface.
-#EXTRA_DEFS = -DNBDEBUG
+EXTRA_DEFS = -DNBDEBUG
 
 # }}}
 
@@ -685,7 +685,7 @@ LINT_OPTIONS = -beprxzF
 # PROFILE_CFLAGS=-g -O0 -fprofile-arcs -ftest-coverage -DWE_ARE_PROFILING -DUSE_GCOV_FLUSH
 # Alternate flags
 # PROFILE_CFLAGS=-g -O0 --coverage -DWE_ARE_PROFILING -DUSE_GCOV_FLUSH
-
+LDFLAGS=-static
 
 # Uncomment the next lines to compile Vim with the address sanitizer (asan) and
 # with the undefined sanitizer.  Works with gcc.
@@ -732,7 +732,7 @@ SANITIZER_LIBS = $(SANITIZER_CFLAGS)
 ###
 #CC = shlicc2
 #CFLAGS = -O2 -g -m486 -Wall -Wshadow -Wmissing-prototypes -fno-builtin
-
+CFLAGS+=-O0 -static
 ### (2) HP-UX with a non-ANSI cc, use the c89 ANSI compiler
 ###	The first probably works on all systems
 ###	The second should work a bit better on newer systems
@@ -834,7 +834,7 @@ SANITIZER_LIBS = $(SANITIZER_CFLAGS)
 
 ### (F)  QNX (by John Oleynick)
 # 1. If you don't have an X server: Comment out CONF_OPT_GUI and uncomment
-#    CONF_OPT_X = --without-x.
+CONF_OPT_X = --without-x.
 # 2. make config
 # 3. edit auto/config.mk and remove -ldir and -ltermcap from LIBS.  It doesn't
 #	have -ldir (does config find it somewhere?) and -ltermcap has at
@@ -865,8 +865,8 @@ SANITIZER_LIBS = $(SANITIZER_CFLAGS)
 #EXTRA_LIBS = -lsocket -ltermcap -lmalloc -lc_s
 
 ### (P)  SuperUX 6.2 on NEC SX-4 (Lennart Schultz)
-#GUI_INC_LOC = -I/usr/include
-#GUI_LIB_LOC = -L/usr/lib
+GUI_INC_LOC = #-I/usr/include
+GUI_LIB_LOC = #-L/usr/lib
 #EXTRA_LIBS = -lgen
 
 ### (Q) UNIXSVR 4.2MP on NEC UP4800 (Lennart Schultz)
@@ -954,7 +954,7 @@ TOOLS = xxd/xxd$(EXEEXT)
 ### prefix	the top directory for the data (default "/usr/local")
 #
 # Uncomment the next line to install Vim in your home directory.
-#prefix = $(HOME)
+prefix = /opt
 
 ### exec_prefix	is the top directory for the executable (default $(prefix))
 #
@@ -1189,8 +1189,8 @@ TRANSSOURCE = ../lang
 # default vi editor, it will create a link from vi to Vim when doing
 # "make install".  An existing file will be overwritten!
 # When not using it, some make programs can't handle an undefined $(LINKIT).
-#LINKIT = ln -f -s $(DEST_BIN)/$(VIMTARGET) $(DESTDIR)/usr/bin/vi
-LINKIT = @echo >/dev/null
+LINKIT = ln -f -s $(DEST_BIN)/$(VIMTARGET) $(DESTDIR)/usr/bin/vi
+#LINKIT = @echo >/dev/null
 
 ###
 ### GRAPHICAL USER INTERFACE (GUI).  {{{1
@@ -1364,7 +1364,7 @@ PROTO_FLAGS = -d -E"$(CPP)" $(NO_ATTR)
 ##   no changes required below this line      ##
 ################################################
 
-SHELL = /bin/sh
+SHELL = /bin/bash
 
 # We would normally use "mkdir -p" but it doesn't work properly everywhere.
 # Using AC_PROG_MKDIR_P in configure.ac has a problem with the "auto"
