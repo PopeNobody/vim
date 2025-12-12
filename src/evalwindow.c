@@ -13,7 +13,7 @@
 
 #include "vim.h"
 
-#if defined(FEAT_EVAL) || defined(PROTO)
+#if defined(FEAT_EVAL)
 
     static int
 win_getid(typval_T *argvars)
@@ -416,6 +416,7 @@ get_win_info(win_T *wp, short tpnr, short winnr)
     dict_add_number(dict, "winnr", winnr);
     dict_add_number(dict, "winid", wp->w_id);
     dict_add_number(dict, "height", wp->w_height);
+    dict_add_number(dict, "status_height", wp->w_status_height);
     dict_add_number(dict, "winrow", wp->w_winrow + 1);
     dict_add_number(dict, "topline", wp->w_topline);
     dict_add_number(dict, "botline", wp->w_botline - 1);
@@ -563,9 +564,10 @@ f_getwininfo(typval_T *argvars, typval_T *rettv)
 	{
 	    tabnr++;
 	    FOR_ALL_POPUPWINS_IN_TAB(tp, wp)
-	    if (wp == wparg)
-		break;
+		if (wp == wparg)
+		    goto found;
 	}
+found:
 	d = get_win_info(wparg, tp == NULL ? 0 : tabnr, 0);
 	if (d != NULL)
 	    list_append_dict(rettv->vval.v_list, d);
@@ -1305,8 +1307,7 @@ f_winwidth(typval_T *argvars, typval_T *rettv)
 }
 #endif // FEAT_EVAL
 
-#if defined(FEAT_EVAL) || defined(FEAT_PYTHON) || defined(FEAT_PYTHON3) \
-	|| defined(PROTO)
+#if defined(FEAT_EVAL) || defined(FEAT_PYTHON) || defined(FEAT_PYTHON3)
 /*
  * Set "win" to be the curwin and "tp" to be the current tab page.
  * restore_win() MUST be called to undo, also when FAIL is returned.

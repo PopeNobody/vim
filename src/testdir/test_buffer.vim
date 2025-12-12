@@ -1,7 +1,5 @@
 " Tests for Vim buffer
 
-source check.vim
-
 " Test for the :bunload command with an offset
 func Test_bunload_with_offset()
   %bwipe!
@@ -169,6 +167,17 @@ func Test_bnext_bprev_help()
   b XHelp1
   blast   | call assert_equal(b4, bufnr())
 
+  " Cycling through help buffers works even if they aren't listed.
+  b XHelp1
+  setlocal nobuflisted
+  bnext | call assert_equal(b3, bufnr())
+  bnext | call assert_equal(b1, bufnr())
+  bprev | call assert_equal(b3, bufnr())
+  setlocal nobuflisted
+  bprev | call assert_equal(b1, bufnr())
+  bprev | call assert_equal(b3, bufnr())
+  bnext | call assert_equal(b1, bufnr())
+
   %bwipe!
 endfunc
 
@@ -214,6 +223,14 @@ func Test_buffer_error()
   call assert_fails('buffer bar', 'E94:')
   call assert_fails('buffer 0', 'E939:')
 
+  %bwipe
+endfunc
+
+func Test_bwipe_during_save()
+  set charconvert=execute('%bw!')
+  call assert_fails('write ++enc=lmao boom', 'E937:')
+
+  set charconvert&
   %bwipe
 endfunc
 
@@ -602,6 +619,64 @@ func Test_closed_buffer_still_in_window()
   unlet! s:w s:b
   autocmd! ViewClosedBuffer
   %bw!
+endfunc
+
+" Cursor position should be restored when switching to a buffer previously
+" viewed in a window, regardless of whether it's visible in another one.
+func Test_switch_to_previously_viewed_buffer()
+  set nostartofline
+  new Xviewbuf
+  call setline(1, range(1, 200))
+  let oldwin = win_getid()
+  vsplit
+
+  call cursor(100, 3)
+  call assert_equal('100', getline('.'))
+  edit Xotherbuf
+  buffer Xviewbuf
+  call assert_equal([0, 100, 3, 0], getpos('.'))
+  call assert_equal('100', getline('.'))
+
+  edit Xotherbuf
+  wincmd p
+  normal! gg10dd
+  wincmd p
+  buffer Xviewbuf
+  call assert_equal([0, 90, 3, 0], getpos('.'))
+  call assert_equal('100', getline('.'))
+
+  edit Xotherbuf
+  wincmd p
+  normal! ggP
+  wincmd p
+  buffer Xviewbuf
+  call assert_equal([0, 100, 3, 0], getpos('.'))
+  call assert_equal('100', getline('.'))
+
+  edit Xotherbuf
+  wincmd p
+  normal! 96gg10ddgg
+  wincmd p
+  buffer Xviewbuf
+  " The original cursor line was deleted, so cursor is restored to the start
+  " of the line before the deleted range.
+  call assert_equal([0, 95, 1, 0], getpos('.'))
+  call assert_equal('95', getline('.'))
+
+  normal! u
+  exe win_id2win(oldwin) .. 'close'
+  setlocal bufhidden=hide
+
+  call cursor(200, 3)
+  call assert_equal('200', getline('.'))
+  edit Xotherbuf
+  buffer Xviewbuf
+  call assert_equal([0, 200, 3, 0], getpos('.'))
+  call assert_equal('200', getline('.'))
+
+  bwipe! Xotherbuf
+  bwipe! Xviewbuf
+  set startofline&
 endfunc
 
 " vim: shiftwidth=2 sts=2 expandtab

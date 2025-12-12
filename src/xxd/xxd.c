@@ -68,6 +68,10 @@
  * 11.11.2024  improve end-of-options argument parser #9285
  * 07.12.2024  fix overflow with xxd --autoskip and large sparse files #16175
  * 15.06.2025  improve color code logic
+ * 08.08.2025  fix overflow with bitwise output
+ * 20.08.2025  remove external library call for autoconversion on z/OS (MVS)
+ * 24.08.2025  avoid NULL dereference with autoskip colorless
+ * 26.11.2025  update indent in exit_with_usage()
  *
  * (c) 1990-1998 by Juergen Weigert (jnweiger@gmail.com)
  *
@@ -148,7 +152,7 @@ extern void perror __P((char *));
 # endif
 #endif
 
-char version[] = "xxd 2025-06-15 by Juergen Weigert et al.";
+char version[] = "xxd 2025-11-26 by Juergen Weigert et al.";
 #ifdef WIN32
 char osver[] = " (Win32)";
 #else
@@ -228,10 +232,9 @@ char osver[] = "";
 #define LLEN_NO_COLOR \
     (39            /* addr: ⌈log10(ULONG_MAX)⌉ if "-d" flag given. We assume ULONG_MAX = 2**128 */ \
     + 2            /* ": " */ \
-    + 2 * COLS    /* hex dump */ \
-    + (COLS - 1)   /* whitespace between groups if "-g1" option given and "-c" maxed out */ \
+    + 9 * COLS     /* hex dump, worst case: bitwise output using -b */ \
     + 2            /* whitespace */ \
-    + COLS    /* ASCII dump */ \
+    + COLS         /* ASCII dump */ \
     + 2)           /* "\n\0" */
 
 char hexxa[] = "0123456789abcdef0123456789ABCDEF", *hexx = hexxa;
@@ -272,32 +275,32 @@ exit_with_usage(void)
 {
   fprintf(stderr, "Usage:\n       %s [options] [infile [outfile]]\n", pname);
   fprintf(stderr, "    or\n       %s -r [-s [-]offset] [-c cols] [-ps] [infile [outfile]]\n", pname);
-  fprintf(stderr, "Options:\n");
-  fprintf(stderr, "    -a          toggle autoskip: A single '*' replaces nul-lines. Default off.\n");
-  fprintf(stderr, "    -b          binary digit dump (incompatible with -ps). Default hex.\n");
-  fprintf(stderr, "    -C          capitalize variable names in C include file style (-i).\n");
-  fprintf(stderr, "    -c cols     format <cols> octets per line. Default 16 (-i: 12, -ps: 30).\n");
-  fprintf(stderr, "    -E          show characters in EBCDIC. Default ASCII.\n");
-  fprintf(stderr, "    -e          little-endian dump (incompatible with -ps,-i,-r).\n");
-  fprintf(stderr, "    -g bytes    number of octets per group in normal output. Default 2 (-e: 4).\n");
-  fprintf(stderr, "    -h          print this summary.\n");
-  fprintf(stderr, "    -i          output in C include file style.\n");
-  fprintf(stderr, "    -l len      stop after <len> octets.\n");
-  fprintf(stderr, "    -n name     set the variable name used in C include output (-i).\n");
-  fprintf(stderr, "    -o off      add <off> to the displayed file position.\n");
-  fprintf(stderr, "    -ps         output in postscript plain hexdump style.\n");
-  fprintf(stderr, "    -r          reverse operation: convert (or patch) hexdump into binary.\n");
-  fprintf(stderr, "    -r -s off   revert with <off> added to file positions found in hexdump.\n");
-  fprintf(stderr, "    -d          show offset in decimal instead of hex.\n");
+  fprintf(stderr, "Options:\n"
+		  "    -a          toggle autoskip: A single '*' replaces nul-lines. Default off.\n"
+		  "    -b          binary digit dump (incompatible with -ps). Default hex.\n"
+		  "    -C          capitalize variable names in C include file style (-i).\n"
+		  "    -c cols     format <cols> octets per line. Default 16 (-i: 12, -ps: 30).\n"
+		  "    -E          show characters in EBCDIC. Default ASCII.\n"
+		  "    -e          little-endian dump (incompatible with -ps,-i,-r).\n"
+		  "    -g bytes    number of octets per group in normal output. Default 2 (-e: 4).\n"
+		  "    -h          print this summary.\n"
+		  "    -i          output in C include file style.\n"
+		  "    -l len      stop after <len> octets.\n"
+		  "    -n name     set the variable name used in C include output (-i).\n"
+		  "    -o off      add <off> to the displayed file position.\n"
+		  "    -ps         output in postscript plain hexdump style.\n"
+		  "    -r          reverse operation: convert (or patch) hexdump into binary.\n"
+		  "    -r -s off   revert with <off> added to file positions found in hexdump.\n"
+		  "    -d          show offset in decimal instead of hex.\n");
   fprintf(stderr, "    -s %sseek  start at <seek> bytes abs. %sinfile offset.\n",
 #ifdef TRY_SEEK
 	  "[+][-]", "(or +: rel.) ");
 #else
 	  "", "");
 #endif
-  fprintf(stderr, "    -u          use upper case hex letters.\n");
-  fprintf(stderr, "    -R when     colorize the output; <when> can be 'always', 'auto' or 'never'. Default: 'auto'.\n"),
-  fprintf(stderr, "    -v          show version: \"%s%s\".\n", version, osver);
+  fprintf(stderr, "    -u          use upper case hex letters.\n"
+		  "    -R when     colorize the output; <when> can be 'always', 'auto' or 'never'. Default: 'auto'.\n"
+		  "    -v          show version: \"%s%s\".\n", version, osver);
   exit(1);
 }
 
@@ -598,7 +601,10 @@ xxdline(FILE *fp, char *l, char *colors, int nz)
   if (!nz && zero_seen == 1)
     {
       strcpy(z, l);
-      memcpy(z_colors, colors, strlen(z));
+      if (colors)
+	{
+	  memcpy(z_colors, colors, strlen(z));
+	}
     }
 
   if (nz || !zero_seen++)
@@ -1009,10 +1015,6 @@ main(int argc, char *argv[])
 	}
       rewind(fpo);
     }
-#ifdef __MVS__
-  // Disable auto-conversion on input file descriptors
-  __disableautocvt(fileno(fp));
-#endif
 
   if (revert)
     switch (hextype)
@@ -1182,9 +1184,7 @@ main(int argc, char *argv[])
 
       c += addrlen + 3 + p;
       if (color)
-	{
 	  colors[c] = cur_color;
-	}
       l[c++] =
 #if defined(__MVS__) && __CHARSET_LIB == 0
 	  (e >= 64)

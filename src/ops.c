@@ -30,7 +30,7 @@ static void	pbyte(pos_T lp, int c);
  * IMPORTANT: Index must correspond with defines in vim.h!!!
  * The third field holds OPF_ flags.
  */
-static char opchars[][3] =
+static const char opchars[][3] =
 {
     {NUL, NUL, 0},			// OP_NOP
     {'d', NUL, OPF_CHANGE},		// OP_DELETE
@@ -105,7 +105,7 @@ op_on_lines(int op)
     return opchars[op][2] & OPF_LINES;
 }
 
-#if defined(FEAT_JOB_CHANNEL) || defined(PROTO)
+#if defined(FEAT_JOB_CHANNEL)
 /*
  * Return TRUE if operator "op" changes text.
  */
@@ -754,6 +754,11 @@ block_insert(
 	    // the insert in the first line.
 	    curbuf->b_op_end.lnum = oap->end.lnum;
 	    curbuf->b_op_end.col = offset;
+	    if (curbuf->b_visual.vi_end.coladd)
+	    {
+		curbuf->b_visual.vi_end.col += curbuf->b_visual.vi_end.coladd;
+		curbuf->b_visual.vi_end.coladd = 0;
+	    }
 	}
     } // for all lnum
 
@@ -3676,7 +3681,7 @@ did_set_operatorfunc(optset_T *args UNUSED)
     return NULL;
 }
 
-#if defined(EXITFREE) || defined(PROTO)
+#if defined(EXITFREE)
     void
 free_operatorfunc_option(void)
 {
@@ -3686,7 +3691,7 @@ free_operatorfunc_option(void)
 }
 #endif
 
-#if defined(FEAT_EVAL) || defined(PROTO)
+#if defined(FEAT_EVAL)
 /*
  * Mark the global 'operatorfunc' callback with "copyID" so that it is not
  * garbage collected.

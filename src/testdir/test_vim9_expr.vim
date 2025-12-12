@@ -1,7 +1,6 @@
 " Tests for Vim9 script expressions
 
-source check.vim
-import './vim9.vim' as v9
+import './util/vim9.vim' as v9
 
 let g:cond = v:false
 def FuncOne(arg: number): string
@@ -3353,7 +3352,11 @@ def Test_expr9_register()
   END
   v9.CheckDefAndScriptSuccess(lines)
 
-  v9.CheckDefAndScriptFailure(["@. = 'yes'"], ['E354:', 'E488:'], 1)
+  # read-only registers
+  v9.CheckDefAndScriptFailure(["@. = 'yes'"], 'E354:', 1)
+  v9.CheckDefAndScriptFailure(["@% = 'yes'"], 'E354:', 1)
+  v9.CheckDefAndScriptFailure(["@: = 'yes'"], 'E354:', 1)
+  v9.CheckDefAndScriptFailure(["@~ = 'yes'"], 'E354:', 1)
 enddef
 
 " This is slow when run under valgrind.
