@@ -1,0 +1,13 @@
+# Set base installation path and feature level
+#    --enable-static
+
+./configure \
+set -- "$@" --prefix=/usr/local 
+set -- "$@" --with-features=huge
+# --- Clipboard and X-Minimal Options ---
+set -- "$@" --disable-gui \
+set -- "$@" --with-x \
+set -- "$@" --enable-clientserver \
+set -- "$@" --enable-clipboard \
+set -- "$@" --enable-xterm_clipboard \
+# --- Static Linking Preference ---
