@@ -305,7 +305,7 @@ CClink = $(CC)
 # Change this to your desire and do 'make config' afterwards
 
 # examples you can uncomment:
-#CONF_ARGS1 = --exec-prefix=/usr
+CONF_ARGS1 = --prefix=/opt 
 #CONF_ARGS2 = --with-vim-name=vim8 --with-ex-name=ex8 --with-view-name=view8
 #CONF_ARGS3 = --with-global-runtime=/etc/vim,/usr/share/vim
 #CONF_ARGS4 = --with-local-dir=/usr/share
@@ -318,7 +318,7 @@ CClink = $(CC)
 # Uncomment this line when you don't want to get the GUI version, although you
 # have GTK and/or Motif.  Also use --without-x if you don't want X11
 # at all.
-#CONF_OPT_GUI = --disable-gui
+CONF_OPT_GUI = --disable-gui
 
 # Uncomment one of these lines if you have that GUI but don't want to use it.
 # The automatic check will use another one that can be found.
@@ -326,10 +326,10 @@ CClink = $(CC)
 #
 # When both GTK+ 2 and GTK+ 3 are possible then GTK+ 2 will be selected.
 # To use GTK+ 3 instead use --enable-gui=gtk3 (see below).
-#CONF_OPT_GUI = --disable-gtk2-check
-#CONF_OPT_GUI = --enable-gnome-check
-#CONF_OPT_GUI = --disable-gtk3-check
-#CONF_OPT_GUI = --disable-motif-check
+CONF_OPT_GUI += --disable-gtk2-check
+CONF_OPT_GUI += --enable-gnome-check
+CONF_OPT_GUI += --disable-gtk3-check
+CONF_OPT_GUI += --disable-motif-check
 
 # Uncomment one of these lines to select a specific GUI to use.
 # When using "yes" or nothing, configure will use the first one found: GTK+,
@@ -418,7 +418,7 @@ CClink = $(CC)
 # When you get an error for a missing "perl.exp" file, try creating an empty
 # one: "touch perl.exp".
 # This requires at least "normal" features, "tiny" doesn't work.
-#CONF_OPT_PERL = --enable-perlinterp
+CONF_OPT_PERL = --enable-perlinterp
 #CONF_OPT_PERL = --enable-perlinterp=dynamic
 
 # PYTHON
@@ -462,7 +462,7 @@ CClink = $(CC)
 
 # CSCOPE
 # Uncomment this when you want to include the Cscope interface.
-#CONF_OPT_CSCOPE = --enable-cscope
+CONF_OPT_CSCOPE = --enable-cscope
 
 # NETBEANS - NetBeans interface. Only works with Motif, GTK, and gnome.
 # Motif version must have XPM libraries (see |netbeans-xpm|).
@@ -471,7 +471,7 @@ CClink = $(CC)
 
 # CHANNEL - inter process communication. Same conditions as NetBeans.
 # Uncomment this when you do not want inter process communication.
-#CONF_OPT_CHANNEL = --disable-channel
+CONF_OPT_CHANNEL = --enable-channel
 
 # TERMINAL - Terminal emulator support, :terminal command.  Requires the
 # channel feature. The default is enable for when using "huge" features.
@@ -491,13 +491,13 @@ CClink = $(CC)
 # NLS - National Language Support
 # Uncomment this when you do not want to support translated messages, even
 # though configure can find support for it.
-#CONF_OPT_NLS = --disable-nls
+CONF_OPT_NLS = --disable-nls
 
 # XIM - X Input Method.  Special character input support for X11 (Chinese,
 # Japanese, special symbols, etc).  Also needed for dead-key support.
 # When omitted it's automatically enabled for the X-windows GUI.
 #CONF_OPT_INPUT = --enable-xim
-#CONF_OPT_INPUT = --disable-xim
+CONF_OPT_INPUT = --disable-xim
 
 # FONTSET - X fontset support for output of languages with many characters.
 # Uncomment this when you want to output a multibyte language.
@@ -537,7 +537,7 @@ CClink = $(CC)
 #CONF_OPT_FEAT = --with-features=huge
 
 # COMPILED BY - For including a specific e-mail address for ":version".
-#CONF_OPT_COMPBY = "--with-compiledby=John Doe <JohnDoe@yahoo.com>"
+CONF_OPT_COMPBY = "--with-compiledby=Nobody <nobody@turing-trust.com>"
 
 # X WINDOWS DISABLE - For creating a plain Vim without any X11 related fancies
 # (otherwise Vim configure will try to include xterm titlebar access)
@@ -558,7 +558,7 @@ CClink = $(CC)
 # Vim will try to use XSMP to catch the user logging out if there are unsaved
 # files.  Uncomment this line to disable that (it prevents vim trying to open
 # communications with the session manager).
-#CONF_OPT_XSMP = --disable-xsmp
+CONF_OPT_XSMP = --disable-xsmp
 
 # You may wish to include xsmp but use exclude xsmp-interact if the logout
 # XSMP functionality does not work well with your session-manager (at time of
@@ -569,7 +569,7 @@ CClink = $(CC)
 #CONF_OPT_XSMP = --disable-xsmp-interact
 
 # If you want to always automatically add a servername, also in the terminal.
-#CONF_OPT_AUTOSERVE = --enable-autoservername
+CONF_OPT_AUTOSERVE = --enable-autoservername
 
 # COMPILER - Name of the compiler {{{1
 # The default from configure will mostly be fine, no need to change this, just
